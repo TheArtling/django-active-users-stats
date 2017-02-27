@@ -45,6 +45,7 @@ def read(fname):
     except IOError:
         return ''
 
+
 setup(
     name="django-active-users-stats",
     version=app.__version__,
@@ -52,7 +53,9 @@ setup(
     long_description=read('README.rst'),
     license='The MIT License',
     platforms=['OS Independent'],
-    keywords='django, app, reusable, users, analytics, stats, tracking, middleware',
+    keywords=(
+        'django, app, reusable, users, analytics, stats, tracking,'
+        ' middleware'),
     author='Nicholas Ng',
     author_email='nzy.nicholas@gmail.com',
     url="https://github.com/theartling/django-active-users-stats",
