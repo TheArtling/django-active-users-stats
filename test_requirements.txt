@@ -1,0 +1,8 @@
+coverage
+fabric3
+flake8
+ipdb
+mixer
+mock
+tox
+django-compat

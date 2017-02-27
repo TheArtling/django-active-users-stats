@@ -1,0 +1,13 @@
+include AUTHORS
+include LICENSE
+include DESCRIPTION
+include CHANGELOG.txt
+include README.md
+include tox.ini
+include runtests.py
+include requirements.txt
+include test_requirements.txt
+graft active_users
+global-exclude *.orig *.pyc *.log *.swp local_settings.py
+prune active_users/tests/coverage
+prune active_users/.ropeproject
