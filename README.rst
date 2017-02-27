@@ -1,7 +1,27 @@
 Django Active Users Stats
-============
+=========================
 
-A reusable Django app that tracks number of requests per day per user
+A reusable Django app that tracks number of requests per day per user.
+
+The default User model only tracks `date_joined` and `last_login`, which is
+not enough to calculate daily active users and monthly active users over time.
+
+You could theoretically solve this by sending custom tagged events to
+Google Analytics or Mixpanel, but that might also be tricky to implement and
+not 100% reliable (because of ad-blockers, for example).
+
+This is just a very simple middleware that fills rows into a table of the
+form:
+
+```
+PK | User (FK) | Day (Date) | Requests (Integer)
+------------------------------------------------
+```
+
+This should allow you to easily create queries to compute your daily active
+users metric and, using `TruncMonth` to compute your monthly active users
+metric. It should also allow you to compute other metrics like active users,
+returning users and churned users.
 
 Installation
 ------------
@@ -18,8 +38,6 @@ To get the latest commit from GitHub
 
     pip install -e git+git://github.com/theartling/django-active-users-stats.git#egg=active_users
 
-TODO: Describe further installation steps (edit / remove the examples below):
-
 Add ``active_users`` to your ``INSTALLED_APPS``
 
 .. code-block:: python
@@ -29,20 +47,16 @@ Add ``active_users`` to your ``INSTALLED_APPS``
         'active_users',
     )
 
-Add the ``active_users`` URLs to your ``urls.py``
+Add ``active_users.middleware.ActiveUsersMiddleware`` to your
+``MIDDLEWARE_CLASSES``:
 
 .. code-block:: python
 
-    urlpatterns = [
-        url(r'^active-users/', include('active_users.urls')),
-    ]
-
-Before your tags/filters are available in your templates, load them by using
-
-.. code-block:: html
-
-	{% load active_users_tags %}
-
+    MIDDLEWARE_CLASSES = (
+        ...,
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'active_users.middleware.ActiveUsersMiddleware',
+    )
 
 Don't forget to migrate your database
 
@@ -54,9 +68,17 @@ Don't forget to migrate your database
 Usage
 -----
 
-TODO: Describe usage or point to docs. Also describe available settings and
-templatetags.
+Once the middleware is installed, your app should start tracking events.
+Check the ``active_users.Requests`` table and see if rows are being created
+when you browse your site.
 
+Configuration
+-------------
+
+**DISABLE_ACTIVE_USERS**
+
+Set to ``True`` to disable tracking. The middleware will just return the
+request and do nothing.
 
 Contribute
 ----------
