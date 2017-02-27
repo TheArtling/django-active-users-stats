@@ -72,6 +72,33 @@ Once the middleware is installed, your app should start tracking events.
 Check the ``active_users.Requests`` table and see if rows are being created
 when you browse your site.
 
+Queries
+-------
+
+In your projects you will likely want to display the metrics that can be
+computed with this app somewhere (i.e. a dashboard). We are providing some
+common queries that you can import and use:
+
+**get_retained_users_per_month**:
+
+TODO: Describe
+
+**get_recovered_users_per_month**:
+
+TODO: Describe
+
+**get_churned_users_per_month**:
+
+TODO: Describe
+
+**get_monthly_active_users**:
+
+TODO: Describe
+
+**get_daily_active_users**:
+
+TODO: Describe
+
 Configuration
 -------------
 
