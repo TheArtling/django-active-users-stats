@@ -26,6 +26,3 @@ class ActiveUsersMiddlewareTestCase(TestCase):
         obj = user.activity.all().first()
         self.assertEqual(obj.count, 2, msg=(
             'When the user has made two requests, the count should be 2'))
-
-        # TODO somehow use hasattr and check for is_impersonated (is that the=
-        # attribute name?) and ignore those requests
