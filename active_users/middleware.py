@@ -1,7 +1,7 @@
 """Middleware classes for the active_users app."""
 from django.utils.timezone import now
 
-from .utils import urls_in_blacklist, user_in_blacklist
+from .utils import is_blacklisted
 from .models import Activity
 
 
@@ -19,11 +19,8 @@ class ActiveUsersMiddleware(object):
             response = self.process_response(request, response)
         return response
 
-    def process_response(self, request, response):
-        if request.user.is_authenticated():
-            if user_in_blacklist(request.user.username) or\
-               urls_in_blacklist(request.path):
-                return response
+    def process_request(self, request):
+        if request.user.is_authenticated() and not is_blacklisted(request):
             day = now().date()
             activity, created = Activity.objects.get_or_create(
                 user=request.user,
@@ -33,4 +30,3 @@ class ActiveUsersMiddleware(object):
             if not created:
                 activity.count += 1
                 activity.save()
-        return response
