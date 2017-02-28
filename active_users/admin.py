@@ -1,11 +1,10 @@
 """Admin classes for the active_users app."""
-# from django.contrib import admin
+from django.contrib import admin
 
-# from . import models
+from . import models
 
 
-# class YourModelAdmin(admin.ModelAdmin):
-#    list_display = ['some', 'fields', ]
-#    search_fields = ['some', 'fieds', ]
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = ['day', 'count', 'user']
 
-# admin.site.register(models.YourModel, YourModelAdmin)
+admin.site.register(models.Activity, ActivityAdmin)
