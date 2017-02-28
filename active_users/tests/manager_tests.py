@@ -1,6 +1,8 @@
 """Tests for the managers of the active_users app."""
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from django.utils.timezone import now, timedelta
+
+from freezegun import freeze_time
 
 from mixer.backend.django import mixer
 
@@ -12,24 +14,22 @@ class ActivityManagerTestCase(TestCase):
 
     def test_get_current(self):
         user = mixer.blend('auth.User')
-        obj = Activity.objects.get_current(user)
-        self.assertFalse(obj, msg=('Should return empty queryset'))
 
-        today = now()
-        yesterday = today - timedelta(days=1)
+        yesterday = now() - timedelta(days=1)
         # We create an instance for yesterday, this should NOT be returned
-        mixer.blend('active_users.Activity', user=user, day=yesterday, count=1)
+        yesterday_obj = mixer.blend(
+            'active_users.Activity', user=user, day=yesterday.date())
 
-        obj = Activity.objects.get_current(user)
-        self.assertFalse(obj, msg=(
-            'Should return empty queryset because there is no entry for the'
-            ' current day, yet'))
+        with freeze_time("2012-01-14"):
+            now_obj = Activity.objects.increment_now(user)
+            self.assertTrue(now_obj, msg=(
+                'Should return newly create Activity instance for the current'
+                ' day'))
+            self.assertNotEqual(yesterday_obj.pk, now_obj.pk, msg=(
+                'now obj should not be the same as yesterday_obj'))
 
-        obj = Activity.objects.get_current(user, create=True)
-        self.assertTrue(obj, msg=(
-            'Should return newly create Activity instance for the current'
-            ' day'))
-
-        obj2 = Activity.objects.get_current(user)
-        self.assertEqual(obj2.pk, obj.pk, msg=(
-            'Should return the instance for the current day'))
+            now_obj2 = Activity.objects.increment_now(user)
+            self.assertEqual(now_obj2.pk, now_obj.pk, msg=(
+                'Should return the instance for the current day'))
+            self.assertEqual(now_obj2.count, 2, msg=(
+                'Should return the instance for the current day'))
