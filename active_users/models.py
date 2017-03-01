@@ -17,7 +17,6 @@ class ActivityManager(models.Manager):
 
     def increment_now(self, user):
         day = now().date()
-        import ipdb; ipdb.set_trace()
         return self.increment_date(user, day)
 
 

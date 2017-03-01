@@ -1,19 +1,21 @@
 """Tests for the queries of the active_users app."""
-from django.test import TestCase
-from django.utils.timezone import now
+# from django.test import TestCase
 
 from mixer.backend.django import mixer
 
+from .. import queries
 
-class GetRetainedUsersPerMonth(TestCase):
+
+class GetRetainedUsersPerMonth(object):
     longMessage = True
 
     def test_query(self):
-        today = now()
         user = mixer.blend('auth.User')
-        mixer.blend('active_users.Activity', user=user, day='2016-01-0'
+        mixer.blend('active_users.Activity', user=user, day='2016-01-0')
 
         # Time range shall be JAN - MAR
+        start_date = '2016-01-01'
+        end_date = '2016-03-31'
 
         # These should be counted:
         # ------------------------
@@ -29,7 +31,6 @@ class GetRetainedUsersPerMonth(TestCase):
         # User1
         # create Activity in FEB
         # create Activity in MAR
-
 
         # These should NOT be counted:
         # ----------------------------
@@ -47,19 +48,20 @@ class GetRetainedUsersPerMonth(TestCase):
         # User who is not retained but recovered or new
         # create Activity in JAN
 
-        result = queries.get_retained_users_per_month(start_date, end_date)
+        queries.get_retained_users_per_month(start_date, end_date)
         # should be [2, 0, 1]
 
 
-class GetRecoveredUsersPerMonth(TestCase):
+class GetRecoveredUsersPerMonth(object):
     longMessage = True
 
     def test_query(self):
-        today = now()
         user = mixer.blend('auth.User')
-        mixer.blend('active_users.Activity', user=user, day='2016-01-0'
+        mixer.blend('active_users.Activity', user=user, day='2016-01-0')
 
         # Time range shall be JAN - MAR
+        start_date = '2016-01-01'
+        end_date = '2016-03-31'
 
         # These should be counted:
         # ------------------------
@@ -75,7 +77,6 @@ class GetRecoveredUsersPerMonth(TestCase):
         # User3
         # create Activity in JAN
         # create Activity in MAR
-
 
         # These should not be counted:
         # ----------------------------
@@ -94,19 +95,20 @@ class GetRecoveredUsersPerMonth(TestCase):
         # User who is churned or new
         # create Activity in JAN
 
-        result = queries.get_recovered_users_per_month(start_date, end_date)
+        queries.get_recovered_users_per_month(start_date, end_date)
         # should be [2, 0, 1]
 
 
-class GetChurnedUsersPerMonth(TestCase):
+class GetChurnedUsersPerMonth(object):
     longMessage = True
 
     def test_query(self):
-        today = now()
         user = mixer.blend('auth.User')
-        mixer.blend('active_users.Activity', user=user, day='2016-01-0'
+        mixer.blend('active_users.Activity', user=user, day='2016-01-0')
 
         # Time range shall be JAN - MAR
+        start_date = '2016-01-01'
+        end_date = '2016-03-31'
 
         # These should be counted:
         # ------------------------
@@ -122,7 +124,6 @@ class GetChurnedUsersPerMonth(TestCase):
         # User3 churned in MAR
         # create Activity in JAN
         # create Activity in FEB
-
 
         # These should not be counted:
         # ----------------------------
@@ -141,5 +142,5 @@ class GetChurnedUsersPerMonth(TestCase):
         # User who is new (never did anything before)
         # create Activity in JAN
 
-        result = queries.get_churned_users_per_month(start_date, end_date)
+        queries.get_churned_users_per_month(start_date, end_date)
         # should be [2, 0, 1]

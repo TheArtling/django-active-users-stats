@@ -3,7 +3,7 @@ from django.conf import settings
 
 DEFAULTS = {
     'users': [''],
-    'urls':  ['/admin/.*']
+    'urls': ['/admin/.*']
 }
 
 BASE_SETTING_KEY = 'ACTIVE_USERS_BLACKLIST'
