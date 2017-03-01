@@ -40,11 +40,12 @@ def get_resurrected_users_per_month(start_date, end_date, threshold=2):
     end_date = parse_date(end_date)
     months = get_months_range(start_date, end_date)
     month_diff = relativedelta(months=threshold)
+    one_month_ago = relativedelta(months=1)
 
     results = []
     for month in months:
         threshold = month - month_diff
-        last_month = month - relativedelta(months=1)
+        last_month = month - one_month_ago
         qs = User.objects.all().filter(
             activity__day__month__lte=threshold.month,
             activity__day__year__lte=threshold.year)
@@ -54,5 +55,26 @@ def get_resurrected_users_per_month(start_date, end_date, threshold=2):
         qs = qs.exclude(
             activity__day__month=last_month.month,
             activity__day__year=last_month.year)
+        qs = qs.distinct()
+        results.append(qs.count())
+    return results
+
+
+def get_churned_users_per_month(start_date, end_date):
+    start_date = parse_date(start_date)
+    end_date = parse_date(end_date)
+    months = get_months_range(start_date, end_date)
+    one_month_ago = relativedelta(months=1)
+
+    results = []
+    for month in months:
+        previous_month = month - one_month_ago
+        qs = User.objects.all().filter(
+            activity__day__month=previous_month.month,
+            activity__day__year=previous_month.year)
+        qs = qs.exclude(
+            activity__day__month=month.month,
+            activity__day__year=month.year)
+        qs = qs.distinct()
         results.append(qs.count())
     return results
