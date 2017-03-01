@@ -7,6 +7,13 @@ from query_utils import get_months_range, parse_date
 
 
 def get_retained_users_per_month(start_date, end_date):
+    """
+        Returns count of all users that were active before
+        current_month and during the
+        current_month for current_month between
+        start_date and end_date
+
+    """
     start_date = parse_date(start_date)
     end_date = parse_date(end_date)
     months = get_months_range(start_date, end_date)
@@ -36,6 +43,13 @@ def get_retained_users_per_month(start_date, end_date):
 
 
 def get_resurrected_users_per_month(start_date, end_date, threshold=2):
+    """
+        Returns count of all users that were active before
+        current_month - threshold(in months) and active during
+        current_month for current_month between
+        start_date and end_date
+
+    """
     start_date = parse_date(start_date)
     end_date = parse_date(end_date)
     months = get_months_range(start_date, end_date)
@@ -61,6 +75,13 @@ def get_resurrected_users_per_month(start_date, end_date, threshold=2):
 
 
 def get_churned_users_per_month(start_date, end_date):
+    """
+        Returns count of all users that were active before
+        current_month but wasn't active during
+        current_month for current_month between
+        start_date and end_date
+
+    """
     start_date = parse_date(start_date)
     end_date = parse_date(end_date)
     months = get_months_range(start_date, end_date)

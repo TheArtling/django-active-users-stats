@@ -8,7 +8,7 @@ from mixer.backend.django import mixer
 from .. import queries
 
 
-class GetRetainedUsersPerMonth(TestCase):
+class GetRetainedUsersPerMonthTestCase(TestCase):
     longMessage = True
     start_date = '2016-01-01'
     end_date = '2016-03-01'
@@ -54,7 +54,7 @@ class GetRetainedUsersPerMonth(TestCase):
         self.assertEqual(set(result), set([2, 1, 1]))
 
 
-class GetResurrectedUsersPerMonth(TestCase):
+class GetResurrectedUsersPerMonthTestCase(TestCase):
     longMessage = True
     start_date = '2016-01-01'
     end_date = '2016-03-01'
@@ -108,7 +108,7 @@ class GetResurrectedUsersPerMonth(TestCase):
         self.assertEqual(set(result), set([2, 0, 1]))
 
 
-class GetChurnedUsersPerMonth(TestCase):
+class GetChurnedUsersPerMonthTestCase(TestCase):
     longMessage = True
     start_date = '2016-01-01'
     end_date = '2016-03-01'
