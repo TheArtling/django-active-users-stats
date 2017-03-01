@@ -1,22 +1,18 @@
-import re
-from . import settings
+"""Helper functions for the active_users app."""
+from django.conf import settings
 
 
-def user_in_blacklist(username):
-    return username in settings.user_blacklist()
+def user_in_blacklist(pk):
+    """
+    Returns `True` if requests for the given user.pk should not be counted.
 
-
-def urls_in_blacklist(url):
-    for pattern in settings.urls_blacklist():
-        if pattern == '':
-            continue
-        compiled_pattern = re.compile(pattern)
-        if compiled_pattern.match(url):
-            return True
-    return False
+    """
+    return pk in getattr(
+        settings, 'ACTIVE_USERS_USER_BLACKLIST', [])
 
 
 def is_blacklisted(request):
+    """Returns `True` if the request should not be counted."""
     return (request.user.is_superuser or
-            user_in_blacklist(request.user.username) or
-            urls_in_blacklist(request.path))
+            request.user.is_staff or
+            user_in_blacklist(request.user.username))

@@ -6,6 +6,7 @@ from . import models
 
 class ActivityAdmin(admin.ModelAdmin):
     list_display = ['day', 'count', 'user']
+    raw_id_fields = ['user']
 
 
 admin.site.register(models.Activity, ActivityAdmin)

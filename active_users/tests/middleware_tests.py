@@ -26,3 +26,9 @@ class ActiveUsersMiddlewareTestCase(TestCase):
         obj = user.activity.all().first()
         self.assertEqual(obj.count, 2, msg=(
             'When the user has made two requests, the count should be 2'))
+
+        with self.settings(ACTIVE_USERS_USER_BLACKLIST=[user.pk]):
+            middleware.ActiveUsersMiddleware().process_request(req)
+            self.assertEqual(obj.count, 2, msg=(
+                'When the user is blacklisted, their requests should not be'
+                ' counted'))
