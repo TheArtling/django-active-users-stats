@@ -1,55 +1,57 @@
 """Tests for the queries of the active_users app."""
-# from django.test import TestCase
+from datetime import date
+
+from django.test import TestCase
 
 from mixer.backend.django import mixer
 
 from .. import queries
 
 
-class GetRetainedUsersPerMonth(object):
+class GetRetainedUsersPerMonth(TestCase):
     longMessage = True
+    start_date = '2016-01-01'
+    end_date = '2016-03-01'
 
-    def test_query(self):
-        user = mixer.blend('auth.User')
-        mixer.blend('active_users.Activity', user=user, day='2016-01-0')
-
-        # Time range shall be JAN - MAR
-        start_date = '2016-01-01'
-        end_date = '2016-03-31'
+    def setUp(self):
+        blend = mixer.blend
 
         # These should be counted:
-        # ------------------------
+        # ----------------------------
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
+        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day=date(2016, 2, 1))
+        blend('active_users.Activity', user=user, day=self.end_date)
 
-        # User1
-        # create Activity in DEC
-        # create Activity in JAN
-
-        # User2
-        # create Activity in DEC
-        # create Activity in JAN
-
-        # User1
-        # create Activity in FEB
-        # create Activity in MAR
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
+        blend('active_users.Activity', user=user, day=self.start_date)
 
         # These should NOT be counted:
         # ----------------------------
         # User before time range (will be counted in cumulative)
-        # create Activity in NOV
-        # create Activity in DEC
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2015, 11, 1))
+        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
 
         # User after time range
-        # create Activity in MAR
-        # create Activity in APR
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2016, 3, 1))
+        blend('active_users.Activity', user=user, day=date(2016, 4, 1))
 
         # User who is not retained but churned
-        # create Activity in DEC
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
 
         # User who is not retained but recovered or new
-        # create Activity in JAN
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
 
-        queries.get_retained_users_per_month(start_date, end_date)
-        # should be [2, 0, 1]
+    def test_query(self):
+        result = queries.get_retained_users_per_month(
+            self.start_date, self.end_date)
+        self.assertEqual(set(result), set([2, 1, 1]))
 
 
 class GetRecoveredUsersPerMonth(object):
