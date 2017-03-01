@@ -33,12 +33,12 @@ def get_retained_users_per_month(start_date, end_date):
         curr_qs = User.objects.all().filter(
             activity__day__month=current.month,
             activity__day__year=current.year)
-        curr_id = list(curr_qs.values_list('pk', flat=True))
         prev_qs = User.objects.all().filter(
             activity__day__month=previous.month,
             activity__day__year=previous.year)
-        prev_id = list(prev_qs.values_list('pk', flat=True))
-        results.append(len(set(curr_id).intersection(prev_id)))
+        combined_qs = curr_qs & prev_qs
+        combined_qs = combined_qs.distinct()
+        results.append(combined_qs.count())
     return results
 
 
