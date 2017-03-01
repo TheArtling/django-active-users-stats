@@ -54,51 +54,58 @@ class GetRetainedUsersPerMonth(TestCase):
         self.assertEqual(set(result), set([2, 1, 1]))
 
 
-class GetRecoveredUsersPerMonth(object):
+class GetResurrectedUsersPerMonth(TestCase):
     longMessage = True
+    start_date = '2016-01-01'
+    end_date = '2016-03-01'
 
-    def test_query(self):
-        user = mixer.blend('auth.User')
-        mixer.blend('active_users.Activity', user=user, day='2016-01-0')
-
-        # Time range shall be JAN - MAR
-        start_date = '2016-01-01'
-        end_date = '2016-03-31'
-
+    def setUp(self):
+        blend = mixer.blend
         # These should be counted:
         # ------------------------
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-11-01')
+        blend('active_users.Activity', user=user, day=self.start_date)
 
-        # User1
-        # create Activity in NOV
-        # create Activity in JAN
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-10-01')
+        blend('active_users.Activity', user=user, day=self.start_date)
 
-        # User2
-        # create Activity in OCT
-        # create Activity in JAN
-
-        # User3
-        # create Activity in JAN
-        # create Activity in MAR
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day=self.end_date)
 
         # These should not be counted:
         # ----------------------------
         # User before time range
-        # create Activity in OCT
-        # create Activity in DEC
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-10-01')
+        blend('active_users.Activity', user=user, day='2015-12-01')
 
         # User after time range
-        # create Activity in FEB
-        # create Activity in APR
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-02-01')
+        blend('active_users.Activity', user=user, day='2016-04-01')
 
         # User who is retained
-        # create Activity in JAN
-        # create Activity in FEB
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day='2016-02-01')
 
-        # User who is churned or new
-        # create Activity in JAN
+        # User who only has one activity
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-02-01')
 
-        queries.get_recovered_users_per_month(start_date, end_date)
-        # should be [2, 0, 1]
+        # User who is active
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day='2016-02-01')
+        blend('active_users.Activity', user=user, day='2016-03-01')
+
+    def test_query(self):
+        result = queries.get_resurrected_users_per_month(
+            self.start_date, self.end_date)
+        self.assertEqual(set(result), set([2, 0, 1]))
 
 
 class GetChurnedUsersPerMonth(object):
