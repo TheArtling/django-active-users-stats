@@ -6,7 +6,7 @@ from django.utils.timezone import now
 class ActivityManager(models.Manager):
     def increment_date(self, user, date):
         """Increments the Action instance for the given user and date."""
-        activity, created = Activity.objects.get_or_create(
+        activity, created = self.get_or_create(
             user=user,
             day=date,
             defaults={'day': date}
