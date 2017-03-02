@@ -19,18 +19,20 @@ class GetRetainedUsersPerMonthTestCase(TestCase):
         # These should be counted:
         # ----------------------------
         user = blend('auth.User')
+        # Was retained in JAN, FEB and MAR
         blend('active_users.Activity', user=user, day=date(2015, 12, 1))
-        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
         blend('active_users.Activity', user=user, day=date(2016, 2, 1))
-        blend('active_users.Activity', user=user, day=self.end_date)
+        blend('active_users.Activity', user=user, day=date(2016, 3, 1))
 
         user = blend('auth.User')
+        # Was only retained in JAN
         blend('active_users.Activity', user=user, day=date(2015, 12, 1))
-        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
 
         # These should NOT be counted:
         # ----------------------------
-        # User before time range (will be counted in cumulative)
+        # User before time range
         user = blend('auth.User')
         blend('active_users.Activity', user=user, day=date(2015, 11, 1))
         blend('active_users.Activity', user=user, day=date(2015, 12, 1))
@@ -44,14 +46,15 @@ class GetRetainedUsersPerMonthTestCase(TestCase):
         user = blend('auth.User')
         blend('active_users.Activity', user=user, day=date(2015, 12, 1))
 
-        # User who is not retained but recovered or new
+        # User who is not retained but recovered
         user = blend('auth.User')
+        blend('active_users.Activity', user=user, day=date(2015, 11, 1))
         blend('active_users.Activity', user=user, day=date(2016, 1, 1))
 
     def test_query(self):
         result = queries.get_retained_users_per_month(
             self.start_date, self.end_date)
-        self.assertEqual(set(result), set([2, 1, 1]))
+        self.assertEqual(result, [2, 1, 1])
 
 
 class GetResurrectedUsersPerMonthTestCase(TestCase):
@@ -65,15 +68,15 @@ class GetResurrectedUsersPerMonthTestCase(TestCase):
         # ------------------------
         user = blend('auth.User')
         blend('active_users.Activity', user=user, day='2015-11-01')
-        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day='2016-01-01')
 
         user = blend('auth.User')
         blend('active_users.Activity', user=user, day='2015-10-01')
-        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day='2016-01-01')
 
         user = blend('auth.User')
         blend('active_users.Activity', user=user, day='2016-01-01')
-        blend('active_users.Activity', user=user, day=self.end_date)
+        blend('active_users.Activity', user=user, day='2016-03-01')
 
         # These should not be counted:
         # ----------------------------
@@ -136,7 +139,7 @@ class GetChurnedUsersPerMonthTestCase(TestCase):
         # create Activity in JAN
         # create Activity in FEB
         user = blend('auth.User')
-        blend('active_users.Activity', user=user, day=self.start_date)
+        blend('active_users.Activity', user=user, day='2016-01-01')
         blend('active_users.Activity', user=user, day='2016-02-01')
 
         # These should not be counted:

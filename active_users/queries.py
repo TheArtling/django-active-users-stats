@@ -8,10 +8,15 @@ from query_utils import get_months_range, parse_date
 
 def get_retained_users_per_month(start_date, end_date):
     """
-        Returns count of all users that were active before
-        current_month and during the
-        current_month for current_month between
-        start_date and end_date
+    Returns retained users.
+
+    Retained users are users that were active before current_month and
+    during the current_month.
+
+    Date params can be strings ('YYYY-MM-DD') or DateTime objects.
+
+    :start_date: Start date of the time range that should be queried.
+    :end_date:End date of the time range that should be queried.
 
     """
     start_date = parse_date(start_date)
@@ -21,10 +26,9 @@ def get_retained_users_per_month(start_date, end_date):
     previous_month = start_date - relativedelta(months=1)
     months_formatted = []
     for month in months:
-        if previous_month:
-            months_formatted.append(
-                (previous_month, month)
-            )
+        months_formatted.append(
+            (previous_month, month)
+        )
         previous_month = month
 
     results = []
@@ -42,31 +46,34 @@ def get_retained_users_per_month(start_date, end_date):
     return results
 
 
-def get_resurrected_users_per_month(start_date, end_date, threshold=2):
+def get_resurrected_users_per_month(start_date, end_date):
     """
-        Returns count of all users that were active before
-        current_month - threshold(in months) and active during
-        current_month for current_month between
-        start_date and end_date
+    Returns resurrected users.
+
+    Resurrected users are users that were active in current_month but not
+    active in last month.
+
+    Date params can be strings ('YYYY-MM-DD') or DateTime objects.
+
+    :start_date: Start date of the time range that should be queried.
+    :end_date:End date of the time range that should be queried.
 
     """
     start_date = parse_date(start_date)
     end_date = parse_date(end_date)
     months = get_months_range(start_date, end_date)
-    month_diff = relativedelta(months=threshold)
     one_month_ago = relativedelta(months=1)
 
     results = []
-    for month in months:
-        threshold = month - month_diff
-        last_month = month - one_month_ago
-        qs = User.objects.all().filter(
-            activity__day__month__lte=threshold.month,
-            activity__day__year__lte=threshold.year)
-        qs = qs.filter(
+    for month in months:  # JAN
+        last_month = month - one_month_ago  # DEC
+        qs = User.objects.all().filter(  # ACTIVE BEFORE NOV
+            activity__day__month__lte=last_month.month,
+            activity__day__year__lte=last_month.year)
+        qs = qs.filter(  # ACTIVE JAN
             activity__day__month=month.month,
             activity__day__year=month.year)
-        qs = qs.exclude(
+        qs = qs.exclude(  # ACTIVE DEC
             activity__day__month=last_month.month,
             activity__day__year=last_month.year)
         qs = qs.distinct()
@@ -76,10 +83,15 @@ def get_resurrected_users_per_month(start_date, end_date, threshold=2):
 
 def get_churned_users_per_month(start_date, end_date):
     """
-        Returns count of all users that were active before
-        current_month but wasn't active during
-        current_month for current_month between
-        start_date and end_date
+    Returns churned users.
+
+    Churned users are users that were active before current_month but wasn't
+    active during current_month.
+
+    Date params can be strings ('YYYY-MM-DD') or DateTime objects.
+
+    :start_date: Start date of the time range that should be queried.
+    :end_date:End date of the time range that should be queried.
 
     """
     start_date = parse_date(start_date)
