@@ -1,6 +1,4 @@
 """Tests for the queries of the active_users app."""
-from datetime import date
-
 from django.test import TestCase
 
 from mixer.backend.django import mixer
@@ -20,36 +18,36 @@ class GetRetainedUsersPerMonthTestCase(TestCase):
         # ----------------------------
         user = blend('auth.User')
         # Was retained in JAN, FEB and MAR
-        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 2, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 3, 1))
+        blend('active_users.Activity', user=user, day='2015-12-01')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day='2016-02-01')
+        blend('active_users.Activity', user=user, day='2016-03-01')
 
         user = blend('auth.User')
         # Was only retained in JAN
-        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
+        blend('active_users.Activity', user=user, day='2015-12-01')
+        blend('active_users.Activity', user=user, day='2016-01-01')
 
         # These should NOT be counted:
         # ----------------------------
         # User before time range
         user = blend('auth.User')
-        blend('active_users.Activity', user=user, day=date(2015, 11, 1))
-        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
+        blend('active_users.Activity', user=user, day='2015-11-01')
+        blend('active_users.Activity', user=user, day='2015-12-01')
 
         # User after time range
         user = blend('auth.User')
-        blend('active_users.Activity', user=user, day=date(2016, 3, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 4, 1))
+        blend('active_users.Activity', user=user, day='2016-03-01')
+        blend('active_users.Activity', user=user, day='2016-04-01')
 
         # User who is not retained but churned
         user = blend('auth.User')
-        blend('active_users.Activity', user=user, day=date(2015, 12, 1))
+        blend('active_users.Activity', user=user, day='2015-12-01')
 
         # User who is not retained but recovered
         user = blend('auth.User')
-        blend('active_users.Activity', user=user, day=date(2015, 11, 1))
-        blend('active_users.Activity', user=user, day=date(2016, 1, 1))
+        blend('active_users.Activity', user=user, day='2015-11-01')
+        blend('active_users.Activity', user=user, day='2016-01-01')
 
     def test_query(self):
         result = queries.get_retained_users_per_month(
