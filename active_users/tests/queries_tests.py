@@ -160,3 +160,44 @@ class GetChurnedUsersPerMonthTestCase(TestCase):
         result = queries.get_churned_users_per_month(
             self.start_date, self.end_date)
         self.assertEqual(set(result), set([2, 0, 1]))
+
+
+class GetDAUAverageTestCase(TestCase):
+    longMessage = true
+
+    def test_query(self):
+        # user1
+        # active 2016-01-01
+        # active 2016-01-02
+        # active 2016-01-03
+
+        # user2
+        # active 2016-01-03
+        # active 2016-01-04
+        # active 2016-01-05
+
+        # we expect: 6 / 31 (for JAN)
+        # TODO: Setup more fixtures for FEB & MAR, then call function like
+        # get_daily_active_users(start_date, end_date) and get something like
+        # [1.93 <- this is 6/31, 2.1, 1.3]
+        # Query could be:
+        # filter for month range,
+        # group by day, count per day, compute avg over count
+
+
+class GetMonthlyActiveUsers(TestCase):
+    longMessage = True
+
+    def test_query(self):
+        # something like, run this for every month in the range:
+        # User.objects.filter(activities__day__=within month range).distinct().count()
+
+        # re-use fixtures from DAU
+        # expected: [2 (two users in JAN), X, Y]
+
+
+class GetStickinessTestCase(TestCase):
+    longMessage = True
+
+    def test_query(self):
+        # dauAvegrage / mau
