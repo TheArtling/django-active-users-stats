@@ -198,10 +198,44 @@ class GetBaseAverageTestCase(TestCase):
         blend('active_users.Activity', user=user, day='2016-03-02')
         blend('active_users.Activity', user=user, day='2016-03-03')
 
+        # These should NOT be counted:
+        # ----------------------------
+        # Users out of range
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-04-01')
+        blend('active_users.Activity', user=user, day='2016-04-02')
+        blend('active_users.Activity', user=user, day='2016-04-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-05-01')
+        blend('active_users.Activity', user=user, day='2016-05-02')
+        blend('active_users.Activity', user=user, day='2016-05-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-06-01')
+        blend('active_users.Activity', user=user, day='2016-06-02')
+        blend('active_users.Activity', user=user, day='2016-06-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-10-01')
+        blend('active_users.Activity', user=user, day='2015-10-02')
+        blend('active_users.Activity', user=user, day='2015-10-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-11-01')
+        blend('active_users.Activity', user=user, day='2015-11-02')
+        blend('active_users.Activity', user=user, day='2015-11-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2015-12-01')
+        blend('active_users.Activity', user=user, day='2015-12-02')
+        blend('active_users.Activity', user=user, day='2015-12-03')
+
 
 class GetDAUAverageTestCase(GetBaseAverageTestCase):
 
     def test_for_period(self):
+        # Test for JAN 2016
         start, end = query_utils.get_first_last_day_of_month(2016, 1)
         result = queries.get_dau_for_period(start, end)
         with localcontext() as ctx:
@@ -232,7 +266,6 @@ class GetMAUTestCase(GetBaseAverageTestCase):
     def test_for_period(self):
         start, end = query_utils.get_first_last_day_of_month(2016, 1)
         result = queries.get_mau_for_period(start, end)
-        Decimal(.1935)
         self.assertEqual(result, Decimal(2))
 
     def test_for_month(self):
