@@ -1,9 +1,10 @@
 """Tests for the queries of the active_users app."""
+from decimal import Decimal, localcontext
 from django.test import TestCase
 
 from mixer.backend.django import mixer
 
-from .. import queries
+from .. import queries, query_utils
 
 
 class GetRetainedUsersPerMonthTestCase(TestCase):
@@ -160,42 +161,106 @@ class GetChurnedUsersPerMonthTestCase(TestCase):
         self.assertEqual(set(result), set([2, 0, 1]))
 
 
-class GetDAUAverageTestCase(TestCase):
-    longMessage = true
-
-    def test_query(self):
-        # user1
-        # active 2016-01-01
-        # active 2016-01-02
-        # active 2016-01-03
-
-        # user2
-        # active 2016-01-03
-        # active 2016-01-04
-        # active 2016-01-05
-
-        # we expect: 6 / 31 (for JAN)
-        # TODO: Setup more fixtures for FEB & MAR, then call function like
-        # get_daily_active_users(start_date, end_date) and get something like
-        # [1.93 <- this is 6/31, 2.1, 1.3]
-        # Query could be:
-        # filter for month range,
-        # group by day, count per day, compute avg over count
-
-
-class GetMonthlyActiveUsers(TestCase):
+class GetBaseAverageTestCase(TestCase):
     longMessage = True
+    start_date = '2016-01-01T00:00:00+00:00'
+    end_date = '2016-03-01T00:00:00+00:00'
 
-    def test_query(self):
-        # something like, run this for every month in the range:
-        # User.objects.filter(activities__day__=within month range).distinct().count()
+    def setUp(self):
+        blend = mixer.blend
+        # User 1
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day='2016-01-02')
+        blend('active_users.Activity', user=user, day='2016-01-03')
 
-        # re-use fixtures from DAU
-        # expected: [2 (two users in JAN), X, Y]
+        blend('active_users.Activity', user=user, day='2016-02-01')
+        blend('active_users.Activity', user=user, day='2016-02-02')
+        blend('active_users.Activity', user=user, day='2016-02-03')
+
+        blend('active_users.Activity', user=user, day='2016-03-01')
+        blend('active_users.Activity', user=user, day='2016-03-02')
+        blend('active_users.Activity', user=user, day='2016-03-03')
+
+        # User 2
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-01-01')
+        blend('active_users.Activity', user=user, day='2016-01-02')
+        blend('active_users.Activity', user=user, day='2016-01-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-02-01')
+        blend('active_users.Activity', user=user, day='2016-02-02')
+        blend('active_users.Activity', user=user, day='2016-02-03')
+
+        user = blend('auth.User')
+        blend('active_users.Activity', user=user, day='2016-03-01')
+        blend('active_users.Activity', user=user, day='2016-03-02')
+        blend('active_users.Activity', user=user, day='2016-03-03')
 
 
-class GetStickinessTestCase(TestCase):
-    longMessage = True
+class GetDAUAverageTestCase(GetBaseAverageTestCase):
 
-    def test_query(self):
-        # dauAvegrage / mau
+    def test_for_period(self):
+        start, end = query_utils.get_first_last_day_of_month(2016, 1)
+        result = queries.get_dau_for_period(start, end)
+        with localcontext() as ctx:
+            ctx.prec = 4
+            expected = Decimal('.1935')
+        self.assertEqual(result, expected)
+
+        end = end.replace(day=3)
+        result = queries.get_dau_for_period(start, end)
+        self.assertEqual(result, 2)
+
+    def test_for_month(self):
+        start = '2016-01-01T00:00:00+00:00'
+        end = '2016-03-03T00:00:00+00:00'
+        result = queries.get_dau_per_month(start, end)
+        with localcontext() as ctx:
+            ctx.prec = 4
+            expected = [
+                Decimal(6)/31,
+                Decimal(6)/29,
+                Decimal(6)/31
+            ]
+        self.assertEqual(result, expected)
+
+
+class GetMAUTestCase(GetBaseAverageTestCase):
+
+    def test_for_period(self):
+        start, end = query_utils.get_first_last_day_of_month(2016, 1)
+        result = queries.get_mau_for_period(start, end)
+        Decimal(.1935)
+        self.assertEqual(result, Decimal(2))
+
+    def test_for_month(self):
+        start = '2016-01-01T00:00:00+00:00'
+        end = '2016-03-03T00:00:00+00:00'
+        result = queries.get_mau_per_month(start, end)
+        expected = [Decimal(2), Decimal(2), Decimal(2)]
+        self.assertEqual(result, expected)
+
+
+class GetStickinessTestCase(GetBaseAverageTestCase):
+
+    def test_for_period(self):
+        start, end = query_utils.get_first_last_day_of_month(2016, 1)
+        result = queries.get_stickiness_for_period(start, end)
+        with localcontext() as ctx:
+            ctx.prec = 4
+            self.assertEqual(result, Decimal(6)/31/2)
+
+    def test_for_month(self):
+        start = '2016-01-01T00:00:00+00:00'
+        end = '2016-03-03T00:00:00+00:00'
+        result = queries.get_stickiness_per_month(start, end)
+        with localcontext() as ctx:
+            ctx.prec = 4
+            expected = [
+                Decimal(6)/31/2,
+                Decimal(6)/29/2,
+                Decimal(6)/31/2
+            ]
+        self.assertEqual(result, expected)
