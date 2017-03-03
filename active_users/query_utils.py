@@ -47,7 +47,7 @@ def stagger_tuple(elements_list, initial=None):
     res = []
     previous_element = initial
     for element in elements_list:
-        if previous_element:
+        if previous_element is not None:
             res.append((previous_element, element))
         previous_element = element
     return res
