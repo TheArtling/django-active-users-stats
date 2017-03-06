@@ -254,9 +254,9 @@ class GetDAUAverageTestCase(GetBaseAverageTestCase):
         with localcontext() as ctx:
             ctx.prec = 4
             expected = [
-                Decimal(6)/31,
-                Decimal(6)/29,
-                Decimal(6)/31
+                Decimal(6) / 31,
+                Decimal(6) / 29,
+                Decimal(6) / 31
             ]
         self.assertEqual(result, expected)
 
@@ -283,7 +283,7 @@ class GetStickinessTestCase(GetBaseAverageTestCase):
         result = queries.get_stickiness_for_period(start, end)
         with localcontext() as ctx:
             ctx.prec = 4
-            self.assertEqual(result, Decimal(6)/31/2)
+            self.assertEqual(result, Decimal(6) / 31 / 2)
 
     def test_for_month(self):
         start = '2016-01-01T00:00:00+00:00'
@@ -292,8 +292,8 @@ class GetStickinessTestCase(GetBaseAverageTestCase):
         with localcontext() as ctx:
             ctx.prec = 4
             expected = [
-                Decimal(6)/31/2,
-                Decimal(6)/29/2,
-                Decimal(6)/31/2
+                Decimal(6) / 31 / 2,
+                Decimal(6) / 29 / 2,
+                Decimal(6) / 31 / 2
             ]
         self.assertEqual(result, expected)

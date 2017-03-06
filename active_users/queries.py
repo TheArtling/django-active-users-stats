@@ -19,7 +19,7 @@ def get_dau_for_period(start_date, end_date):
     day_qs = day_qs.filter(day__range=(start_date, end_date))
     with localcontext() as ctx:
         ctx.prec = 4
-        average = safe_div(Decimal(day_qs.count()), date_diff.days+1)
+        average = safe_div(Decimal(day_qs.count()), date_diff.days + 1)
     return average
 
 
