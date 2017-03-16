@@ -5,7 +5,7 @@ from . import models
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ['day', 'count', 'user', 'user__email']
+    list_display = ['day', 'count', 'user', 'user__email', 'last_active']
     raw_id_fields = ['user']
 
     def user__email(self, obj):
