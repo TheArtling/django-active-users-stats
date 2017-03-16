@@ -8,6 +8,7 @@ from mixer.backend.django import mixer
 
 from ..models import Activity
 
+
 @freeze_time('1900-01-01')
 class ActivityManagerTestCase(TestCase):
     longMessage = True
