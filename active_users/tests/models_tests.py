@@ -50,15 +50,9 @@ class ActivityTestCase(TestCase):
     def test_unique(self):
         with freeze_time('1900-01-01'):
             today = now()
-            passed = False
-            try:
-                r1 = mixer.blend(
-                    'active_users.Activity', user=self.user, day=today)
-                r2 = mixer.blend(
-                    'active_users.Activity', user=self.user, day=today)
-            except IntegrityError:
-                passed = True
-            finally:
-                self.assertTrue(passed, msg=(
-                    'Should throw an integrity error when the same user and'
-                    ' day is made'))
+            mixer.blend('active_users.Activity', user=self.user, day=today)
+            self.assertRaises(
+                IntegrityError, mixer.blend,
+                'active_users.Activity', user=self.user, day=today,
+                msg=('Should throw an integrity error when the same user and'
+                     ' day is made'))

@@ -1,17 +1,21 @@
 """Models for the active_users app."""
-from django.db import models
+from django.db import models, IntegrityError
 from django.utils.timezone import now
 
 
 class ActivityManager(models.Manager):
     def increment_date(self, user, date):
         """Increments the Action instance for the given user and date."""
-        activity, created = self.get_or_create(
-            user=user,
-            day=date,
-            defaults={'day': date}
-        )
-        if not created:
+        try:
+            activity, created = self.get_or_create(
+                user=user,
+                day=date,
+                defaults={'day': date}
+            )
+        except IntegrityError:
+            activity = self.get(user=user, day=date)
+            created = False
+        if activity and not created:
             activity.count += 1
             activity.save()
         return activity
