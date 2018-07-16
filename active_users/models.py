@@ -4,14 +4,12 @@ from django.utils.timezone import now
 
 
 class ActivityManager(models.Manager):
+
     def increment_date(self, user, date):
         """Increments the Action instance for the given user and date."""
         try:
             activity, created = self.get_or_create(
-                user=user,
-                day=date,
-                defaults={'day': date}
-            )
+                user=user, day=date, defaults={'day': date})
         except IntegrityError:
             activity = self.get(user=user, day=date)
             created = False
@@ -36,7 +34,7 @@ class Activity(models.Model):
     last_active = models.DateTimeField(auto_now=True)
     count = models.IntegerField(default=1)
     user = models.ForeignKey(
-        'auth.User', related_name='activity')
+        'auth.User', related_name='activity', on_delete=models.SET_NULL)
 
     objects = ActivityManager()
 
