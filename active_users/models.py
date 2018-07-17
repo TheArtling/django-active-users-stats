@@ -34,7 +34,10 @@ class Activity(models.Model):
     last_active = models.DateTimeField(auto_now=True)
     count = models.IntegerField(default=1)
     user = models.ForeignKey(
-        'auth.User', related_name='activity', on_delete=models.SET_NULL)
+        'auth.User',
+        related_name='activity',
+        null=True,
+        on_delete=models.SET_NULL)
 
     objects = ActivityManager()
 
