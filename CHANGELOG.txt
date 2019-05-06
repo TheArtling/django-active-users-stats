@@ -1,4 +1,9 @@
-=== 0.0.X (onggoing, to be released as 0.1) ===
+=== 0.2.X (onggoing, to be released as 0.3) ===
+
+=== 0.2 ===
+- using settings.AUTH_USER_MODEL
+
+=== 0.0.X ===
 - Initial commit
 
 
