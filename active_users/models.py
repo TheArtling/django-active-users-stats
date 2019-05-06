@@ -1,6 +1,7 @@
 """Models for the active_users app."""
 from django.db import models, IntegrityError
 from django.utils.timezone import now
+from django.conf import settings
 
 
 class ActivityManager(models.Manager):
@@ -34,7 +35,7 @@ class Activity(models.Model):
     last_active = models.DateTimeField(auto_now=True)
     count = models.IntegerField(default=1)
     user = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         related_name='activity',
         null=True,
         on_delete=models.SET_NULL)
